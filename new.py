@@ -63,10 +63,11 @@ def step(model, tokenizer, init, batch_size=1024, topk_semanteme=10):
             full_input = tokenizer(full_input_string, return_tensors="pt").input_ids.to("cuda")
             outputs = model(full_input)
             logits = outputs.logits[0][-5:-1]
-            shift_labels = [306, 29915, 29885, 7423]
+            shift_labels = torch.tensor([306, 29915, 29885, 7423])
             loss_fct = CrossEntropyLoss()
             loss[j] = loss_fct(logits.view(-1, logits.size(-1)), shift_labels)
         min_idx = loss.argmin()
         next_control, cand_loss = control_cand[min_idx], loss[min_idx]
+    return next_control, cand_loss
 
     del loss ; gc.collect()
